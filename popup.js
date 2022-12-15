@@ -45,7 +45,8 @@ function updateColors(settings) {
 // Run when the popup is clicked and elements are loaded
 document.addEventListener('DOMContentLoaded', async () => {
   const numWords = document.getElementById('numWords');
-  const possibleHTML = document.getElementById('possible');
+  const tableRows = document.getElementsByTagName('td');
+  
 
   let [tab] = await chrome.tabs.query({
     active: true,
@@ -57,13 +58,22 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (tab) {
     // Send empty message to solver.js to get state and update
     await chrome.tabs.sendMessage(tab.id, {}, ({ possible={}, settings={} }) => {
-      shuffleArray(possible);
-      numWords.innerHTML = `${possible.length} possible word${possible.length > 1 ? 's' : ''}`;
-      const suggestions = possible.map(word => `${word.toUpperCase()}`).join(', ');
-      possibleHTML.innerHTML = suggestions;
-
-      updateIcon(settings, possible.length, tab.id);
+      let s = 0;
+      document.getElementById('possible').innerText = "Boards:";
+      numWords.innerHTML = "";
+      for (let i = 0; i < 8; i++) {
+        let curr_possible = possible[i];
+        shuffleArray(curr_possible);
+        tableRows[i].innerHTML = `${curr_possible.length} possible word${curr_possible.length > 1 ? 's' : ''}`;
+        s += curr_possible.length;
+      }
+      updateIcon(settings, s, tab.id);
       updateColors(settings);
+
+      // on button click: 
+        // const suggestions = possible.map(word => `${word.toUpperCase()}`).join(', ');
+        // possibleHTML.innerHTML = suggestions;
+      
     });
   }
 })

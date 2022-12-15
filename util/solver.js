@@ -115,11 +115,11 @@ function transformGuesses(guesses) {
 }
 
 // Given the game state, compute the list of possible words
-function solve() {
+function solve_specific_board(board_number) {
     // NYT no longer stores the game state in local stoarage, so we must determine
     // the game state based on the HTML classes
 
-    let guesses = Array.from(document.querySelectorAll('.letter')).slice(0,30);
+    let guesses = Array.from(document.querySelectorAll('.letter')).slice((board_number-1)*65, board_number*65);
     guesses = transformGuesses(guesses);
 
     // Change 1x30 array into 6x5 array
@@ -154,6 +154,13 @@ function solve() {
         }
     }
     return Array.from(getPossibleWords(state));
+}
+
+function solve() {
+    ret = []
+    for (let i = 1; i < 9; i++)
+        ret.push(solve_specific_board(i));
+    return ret
 }
 
 // Listen to keyboard enters to update
