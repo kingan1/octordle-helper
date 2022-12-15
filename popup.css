@@ -10,6 +10,22 @@ body {
   align-items: center;
 }
 
+button {
+  font-size: 16px;
+  cursor:pointer;
+  width: 100%;
+  border-radius: 10px;
+  border-color: #ffff;
+  border: 1px solid white;
+}
+
+
+table { 
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
 #possible {
   padding: 0px 10px 10px 10px;
   font-size: 22px;

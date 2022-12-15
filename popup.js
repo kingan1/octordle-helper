@@ -40,12 +40,36 @@ function updateColors(settings) {
     bodyClasses.remove('highcontrast');
     bodyClasses.add('nocontrast');
   }
+    let ary = Array.prototype.slice.call(document.querySelectorAll("button"));
+    ary.forEach(function(el) {
+      el.className += bodyClasses;
+  })
 }
+
 
 // Run when the popup is clicked and elements are loaded
 document.addEventListener('DOMContentLoaded', async () => {
   const numWords = document.getElementById('numWords');
-  const tableRows = document.getElementsByTagName('td');
+  const possibleHTML = document.getElementById('possible');
+  const tableRows = document.getElementsByTagName('button');
+  let words = [];
+
+  let ary = Array.prototype.slice.call(document.querySelectorAll("button"));
+  ary.forEach(function(el) {
+    el.addEventListener('click', function() {
+        // we want to remove all other buttons and display this buttons words
+        
+        numWords.innerText = "Board # "+el.id + ":";
+        const suggestions = words[parseInt(el.id)].map(word => `${word.toUpperCase()}`).join(', ');
+        possibleHTML.innerHTML = suggestions;
+        // hide all buttons
+        for (let i = 0; i < 8; i++) {
+          tableRows[i].hidden = true;
+        }
+        
+    });
+})
+
   
 
   let [tab] = await chrome.tabs.query({
@@ -59,20 +83,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Send empty message to solver.js to get state and update
     await chrome.tabs.sendMessage(tab.id, {}, ({ possible={}, settings={} }) => {
       let s = 0;
-      document.getElementById('possible').innerText = "Boards:";
-      numWords.innerHTML = "";
+      numWords.innerText = "Boards:";
+      possibleHTML.innerHTML="";
       for (let i = 0; i < 8; i++) {
         let curr_possible = possible[i];
         shuffleArray(curr_possible);
+        words.push(curr_possible);
         tableRows[i].innerHTML = `${curr_possible.length} possible word${curr_possible.length > 1 ? 's' : ''}`;
         s += curr_possible.length;
       }
       updateIcon(settings, s, tab.id);
       updateColors(settings);
-
-      // on button click: 
-        // const suggestions = possible.map(word => `${word.toUpperCase()}`).join(', ');
-        // possibleHTML.innerHTML = suggestions;
       
     });
   }
