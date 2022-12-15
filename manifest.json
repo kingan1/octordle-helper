@@ -28,7 +28,7 @@
         {
             "matches": [
                 "https://www.powerlanguage.co.uk/wordle/*",
-                "https://www.nytimes.com/games/wordle/*"
+                "https://octordle.com/*"
             ],
             "js": [
                 "./util/constants.js",

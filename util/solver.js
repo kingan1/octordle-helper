@@ -95,18 +95,37 @@ function getPossibleWords({
 // Get whether the user has dark mode and high contrast mode enabled
 function getColorSettings() {
     // Settings for dark mode and high contrast are undefined until explicitly toggled
-    let settings = JSON.parse(window.localStorage[WordleSettingsKey]).settings;
+    // let settings = JSON.parse(window.localStorage[WordleSettingsKey]).settings;
+    // return {
+    //     DarkMode: settings.darkMode ?? false,
+    //     HighContrast: settings.colorblindMode ?? false
+    // };
     return {
-        DarkMode: settings.darkMode ?? false,
-        HighContrast: settings.colorblindMode ?? false
+        DarkMode: false,
+        HighContrast: false
     };
+}
+
+function transformGuesses(guesses) {
+    new_guesses = [];
+    for (let i = 0; i < 30; i++) {
+        item = guesses[i]
+        // if its numeric: map to "" or if it hasn't been guessed yet
+        letter = parseInt(item.innerText) || !item.innerText ? "" : item.innerText.toLowerCase() + " "
+        // if it hasn't been guessed: map to ""
+        state = !letter || item.className.includes("current-guess") ? "" : item.className.split(" ")[1]
+        new_guesses.push(letter + state)
+    }
+    return new_guesses;
 }
 
 // Given the game state, compute the list of possible words
 function solve() {
     // NYT no longer stores the game state in local stoarage, so we must determine
     // the game state based on the HTML classes
-    let guesses = Array.from(document.querySelectorAll('[data-state]')).slice(0,30).map(item => item.ariaLabel);
+
+    let guesses = Array.from(document.querySelectorAll('.letter')).slice(0,30);
+    guesses = transformGuesses(guesses);
 
     // Change 1x30 array into 6x5 array
     let boardState = guesses.reduce((rows, key, index) => (index % 5 == 0 ? rows.push([key]) : rows[rows.length-1].push(key)) && rows, []);

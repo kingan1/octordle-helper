@@ -1,7 +1,7 @@
 # Wordle Helper
 ![Wordle Helper logo](./logo.png)
 
-[Wordle](https://www.nytimes.com/games/wordle/index.html) is taking Twitter by storm, so I decided to take this opportunity to make something fun and slightly useful and learn how to make a Chrome extension. You can download the extension **[here](https://chrome.google.com/webstore/detail/wordle-helper/lcoapaclmojlnbjipmpfibcjomncgdod)**.
+[Octordle](https://octordle.com/daily) is taking Twitter by storm, so I decided to take this opportunity to make something fun and slightly useful and learn how to make a Chrome extension. You can download the extension **[here](https://chrome.google.com/webstore/detail/wordle-helper/lcoapaclmojlnbjipmpfibcjomncgdod)**.
 
 ## Demo
 The extension will narrow down the possible words based on the game state. Click on the extension to see the count and list of possible answer words remaining. The list of possible answers will update as you enter guesses.
