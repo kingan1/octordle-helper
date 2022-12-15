@@ -95,14 +95,9 @@ function getPossibleWords({
 // Get whether the user has dark mode and high contrast mode enabled
 function getColorSettings() {
     // Settings for dark mode and high contrast are undefined until explicitly toggled
-    // let settings = JSON.parse(window.localStorage[WordleSettingsKey]).settings;
-    // return {
-    //     DarkMode: settings.darkMode ?? false,
-    //     HighContrast: settings.colorblindMode ?? false
-    // };
     return {
-        DarkMode: false,
-        HighContrast: false
+        DarkMode: [DarkModeSetting, RetroModeSetting].includes(window.localStorage[OctordleModeKey]) ?? false,
+        HighContrast: window.localStorage[HighContrastSetting] === ColorblindSetting ?? false
     };
 }
 
@@ -179,6 +174,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     try {
         let possible = solve();
         let settings = getColorSettings();
+        console.log(settings)
         sendResponse({ possible, settings });
     } catch (e) {
         console.error("encountered JSON parse error", e);
