@@ -40,32 +40,45 @@ function updateColors(settings) {
     bodyClasses.remove('highcontrast');
     bodyClasses.add('nocontrast');
   }
-    let ary = Array.prototype.slice.call(document.querySelectorAll("button"));
+    let ary = Array.prototype.slice.call(document.getElementsByClassName('board'));
     ary.forEach(function(el) {
-      el.className += bodyClasses;
+      el.className += " " + bodyClasses;
   })
+}
+
+// when solved, update with the word and remove the onClick
+function handleBoardSolved(board, word) {
+  board.innerHTML = "SOLVED";
+  board.removeAttribute("onClick")
 }
 
 
 // Run when the popup is clicked and elements are loaded
 document.addEventListener('DOMContentLoaded', async () => {
-  const numWords = document.getElementById('numWords');
-  const possibleHTML = document.getElementById('possible');
-  const tableRows = document.getElementsByTagName('button');
+  const descriptionHTML = document.getElementById('description');
+  const wordList = document.getElementById('wordList');
+  const tableRows = document.getElementsByClassName('board');
   let words = [];
 
-  let ary = Array.prototype.slice.call(document.querySelectorAll("button"));
+  let ary = Array.prototype.slice.call(tableRows);
   ary.forEach(function(el) {
     el.addEventListener('click', function() {
         // we want to remove all other buttons and display this buttons words
-        
-        numWords.innerText = "Board # "+el.id + ":";
+        descriptionHTML.innerText = "Board # "+(parseInt(el.id)+1) + ":";
         const suggestions = words[parseInt(el.id)].map(word => `${word.toUpperCase()}`).join(', ');
-        possibleHTML.innerHTML = suggestions;
+        wordList.innerHTML = suggestions;
+        // show the top bar
+        document.getElementById("wordList").hidden = false
+
         // hide all buttons
         for (let i = 0; i < 8; i++) {
           tableRows[i].hidden = true;
         }
+
+        // show the back and forward buttons
+        Array.from(document.getElementsByClassName("arrow")).forEach((el) => {
+          el.style.removeProperty("display");
+        })
         
     });
 })
@@ -83,14 +96,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Send empty message to solver.js to get state and update
     await chrome.tabs.sendMessage(tab.id, {}, ({ possible={}, settings={} }) => {
       let s = 0;
-      numWords.innerText = "Boards:";
-      possibleHTML.innerHTML="";
+      // show the back and forward buttons
+      Array.from(document.getElementsByClassName("btn-group")).forEach((el) => {
+        el.hidden = false;
+      })
+
+      descriptionHTML.innerHTML="Boards:";
       for (let i = 0; i < 8; i++) {
         let curr_possible = possible[i];
-        shuffleArray(curr_possible);
-        words.push(curr_possible);
-        tableRows[i].innerHTML = `${curr_possible.length} possible word${curr_possible.length > 1 ? 's' : ''}`;
-        s += curr_possible.length;
+        if (curr_possible[0] === true) {
+            handleBoardSolved(tableRows[i], curr_possible[1])
+            words.push([curr_possible[1]])
+        } else {
+          shuffleArray(curr_possible);
+          words.push(curr_possible);
+          tableRows[i].innerHTML = `${curr_possible.length} possible word${curr_possible.length > 1 ? 's' : ''}`;
+          s += curr_possible.length;
+        }
       }
       updateIcon(settings, s, tab.id);
       updateColors(settings);

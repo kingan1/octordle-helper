@@ -10,33 +10,20 @@ body {
   align-items: center;
 }
 
-button {
-  font-size: 16px;
-  cursor:pointer;
-  width: 100%;
-  border-radius: 10px;
-  border-color: #ffff;
-  border: 1px solid white;
-}
 
 
-table { 
-  width: 100%;
-  table-layout: fixed;
-  border-collapse: collapse;
-}
-
-#possible {
+#description, #wordList {
   padding: 0px 10px 10px 10px;
   font-size: 22px;
+  display:inline-block
 }
 
-#possible>a:link, #possible>a:visited {
+#description>a:link, #description>a:visited {
   color: #538d4e;
   text-decoration: none;
 }
 
-#possible>a:hover {
+#description>a:hover {
   text-decoration: underline;
 }
 
@@ -54,4 +41,39 @@ table {
 
 .highcontrast {
   color: #f5793a;
+}
+
+.arrow {
+  text-decoration: none;
+  padding: 8px 14px;
+  background-color: #f1f1f1;
+  color: black;
+  cursor:pointer;
+  border-radius: 50%;
+  border-color: #ffff;
+  border: 1px solid white;
+}
+
+
+.btn-group button {
+  padding: 7px;
+  cursor: pointer; /* Pointer/hand icon */
+  float: left; /* Float the buttons side by side */
+  font-size: 16px;
+  border-color: #ffff;
+  border: 1px solid white;
+  width:9em;
+  height: 3em;
+
+}
+
+/* Clear floats (clearfix hack) */
+.btn-group:after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+.btn-group button:not(:last-child) {
+  border-right: none; /* Prevent double borders */
 }

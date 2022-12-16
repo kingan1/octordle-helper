@@ -4,32 +4,34 @@
 <head>
   <link rel="stylesheet" href="popup.css">
 </head>
-<header>
-  <h3 id="numWords"></h3>
-</header>
 <body>
-    <div id="possible">
+  
+  <div id="header">
+    <button class="previous arrow" style="display:none">&#8249;</button>
+    <div id="description">
       <a href="https://octordle.com/free" target="blank">Open practice Octordle</a>
     </div>
+    <button href="#" class="next arrow" style="display:none">&#8250;</button>
+  </div>
 
-    <table>
-      <tr>
-        <td><button id="0">Board 1</button></td>
-        <td><button id="1">Board 2</button></td>
-      </tr>
-      <tr>
-        <td><button id="2">Board 3</button></td>
-        <td><button id="3">Board 4</button></td>
-      </tr>
-      <tr>
-        <td><button id="4">Board 5</button></td>
-        <td><button id="5">Board 6</button></td>
-      </tr>
-      <tr>
-        <td><button id="6">Board 7</button></td>
-        <td><button id="7">Board 8</button></td>
-      </tr>
-    </table>
+  <div id="wordList" hidden="true"></div>
+  
+  <div class="btn-group" hidden="true">
+      <button class="board" id="0">Board 1</button>
+      <button class="board" id="1">Board 2</button>
+    </div>
+    <div class="btn-group" hidden="true">
+      <button class="board" id="2">Board 3</button>
+      <button class="board" id="3">Board 4</button>
+    </div>
+    <div class="btn-group" hidden="true">
+      <button class="board" id="4">Board 5</button>
+      <button class="board" id="5">Board 6</button>
+    </div>
+    <div class="btn-group" hidden="true">
+      <button class="board" id="6">Board 7</button>
+      <button class="board" id="7">Board 8</button>
+    </div>
   <script src="popup.js"></script>
 </body>
 

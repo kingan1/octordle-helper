@@ -103,7 +103,7 @@ function getColorSettings() {
 
 function transformGuesses(guesses) {
     new_guesses = [];
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < NumEntries; i++) {
         item = guesses[i]
         // if its numeric: map to "" or if it hasn't been guessed yet
         letter = parseInt(item.innerText) || !item.innerText ? "" : item.innerText.toLowerCase() + " "
@@ -114,6 +114,19 @@ function transformGuesses(guesses) {
     return new_guesses;
 }
 
+function checkSolved(guesses) {
+    // if the last 5 before '' all contain States.Correct: solved
+    let last_row_index = guesses.indexOf("") - 5
+    let word = ""
+    for (let i = last_row_index; i < last_row_index+5; i++) {
+        if (guesses[i].split(" ")[1] != States.CORRECT) {
+            return false
+        }
+        word += guesses[i].split(" ")[0]
+    }
+    return word
+}
+
 // Given the game state, compute the list of possible words
 function solve_specific_board(board_number) {
     // NYT no longer stores the game state in local stoarage, so we must determine
@@ -121,8 +134,12 @@ function solve_specific_board(board_number) {
 
     let guesses = Array.from(document.querySelectorAll('.letter')).slice((board_number-1)*65, board_number*65);
     guesses = transformGuesses(guesses);
+    let word = checkSolved(guesses)
+    if (word) {
+        return [true, word];
+    }
 
-    // Change 1x30 array into 6x5 array
+    // Change 65 array into 13x5 array
     let boardState = guesses.reduce((rows, key, index) => (index % 5 == 0 ? rows.push([key]) : rows[rows.length-1].push(key)) && rows, []);
 
     let state = {
@@ -181,7 +198,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     try {
         let possible = solve();
         let settings = getColorSettings();
-        console.log(settings)
         sendResponse({ possible, settings });
     } catch (e) {
         console.error("encountered JSON parse error", e);
