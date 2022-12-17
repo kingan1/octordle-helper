@@ -102,9 +102,9 @@ function getColorSettings() {
     };
 }
 
-function transformGuesses(guesses) {
+function transformGuesses(guesses, entries) {
     new_guesses = [];
-    for (let i = 0; i < NumEntries; i++) {
+    for (let i = 0; i < entries; i++) {
         item = guesses[i]
         // if its numeric: map to "" or if it hasn't been guessed yet
         letter = parseInt(item.innerText) || !item.innerText ? "" : item.innerText.toLowerCase() + " "
@@ -115,7 +115,7 @@ function transformGuesses(guesses) {
     return new_guesses;
 }
 
-function checkSolved(guesses) {
+function checkSolved(guesses, NumEntries) {
     // if the last 5 before '' all contain States.Correct: solved
     let last_row_index = guesses.indexOf("") === -1 ? NumEntries-5 :guesses.indexOf("") - 5
     if (last_row_index < 0 || last_row_index % 5) {
@@ -132,10 +132,11 @@ function checkSolved(guesses) {
 }
 
 // Given the game state, compute the list of possible words
-function solve_specific_board(board_number) {
-    let guesses = Array.from(document.querySelectorAll('.letter')).slice((board_number-1)*65, board_number*65);
-    guesses = transformGuesses(guesses);
-    let word = checkSolved(guesses)
+function solve_specific_board(board_number, type) {
+    let entries = NumRows[type] * 5;
+    let guesses = Array.from(document.querySelectorAll('.letter')).slice((board_number-1)*entries, board_number*entries);
+    guesses = transformGuesses(guesses, entries);
+    let word = checkSolved(guesses, entries)
 
     if (document.getElementsByClassName("post-game--title").length && word) {
         return [true, word, true];
@@ -186,12 +187,35 @@ function solve_specific_board(board_number) {
     return possibleWords;
 }
 
-function solve() {
+const convert = {
+    "https://octordle.com/free": "free",
+    "https://octordle.com/free-sequence": "sequence"
+}
+
+function solve(url) {
     numWords = 0;
     ret = []
+
+    type = convert[url];
+
     for (let i = 1; i < 9; i++)
-        ret.push(solve_specific_board(i));
-    return ret
+        ret.push(solve_specific_board(i, type));
+    if (type == "free") {
+        return ret
+    } else if (type == "sequence") {
+        // detect what board # we are on by seeing how many we have solved
+        let i;
+        for (i = 0; i < 8; i++) {
+            if (ret[i][0] != true) {
+                break;
+            }
+        }
+        for (let k = i+1; k < 8; k++) {
+            ret[k] = [false, ANSWER_WORDS];
+        }
+        numWords = i == 8 ? 0 : ret[i].length;
+        return ret
+    }
 }
 
 // Listen to keyboard enters to update
@@ -201,7 +225,7 @@ document.addEventListener('keyup', async (e) => {
         await new Promise(r => setTimeout(r, 1800));
 
         chrome.runtime.sendMessage({
-            possible: solve(), 
+            possible: solve(document.URL), 
             numWords: numWords,
             settings: getColorSettings()
         });
@@ -211,7 +235,7 @@ document.addEventListener('keyup', async (e) => {
 // Listen to message from popup.js and respond
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     try {
-        let possible = solve();
+        let possible = solve(request['url']);
         let settings = getColorSettings();
         sendResponse({ possible, numWords, settings });
     } catch (e) {
@@ -221,7 +245,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 // Run when wordle page first opens
 chrome.runtime.sendMessage({
-    possible: solve(), 
+    possible: solve(document.URL), 
     numWords: numWords,
     settings: getColorSettings()
 });

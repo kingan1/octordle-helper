@@ -4,6 +4,10 @@ let tableRows = document.getElementsByClassName('board');
 let arrows = document.getElementsByClassName("arrow");
 let board = document.getElementsByClassName('board');
 let boardButtons = document.getElementsByClassName("btn-group");
+const convert = {
+  "https://octordle.com/free": "free",
+  "https://octordle.com/free-sequence": "sequence"
+}
 let curr_board;
 
 // Shuffle the suggestions given
@@ -101,19 +105,31 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   })
 
-  
-
   let [tab] = await chrome.tabs.query({
     active: true,
     currentWindow: true,
     url: "https://octordle.com/free"
   });
 
+  let activeTab;
+
   // Try to get results only if on NYT page
   if (tab) {
+    activeTab = tab;
+  }
+  
+  let [sequence] = await chrome.tabs.query({
+    active: true,
+    currentWindow: true,
+    url: "https://octordle.com/free-sequence"});
+  
+    if (sequence) {
+      activeTab = sequence;
+    }
+
+  if (activeTab) {
     // Send empty message to solver.js to get state and update
-    await chrome.tabs.sendMessage(tab.id, {}, ({ possible={}, numWords = {}, settings={} }) => {
-      let s = 0;
+    await chrome.tabs.sendMessage(activeTab.id, {url:activeTab.url}, ({ possible={}, numWords = {}, settings={} }) => {
       // add onclick for the back and forward buttons
       Array.from(arrows).forEach((el) => {
         el.addEventListener('click', function() {
@@ -133,13 +149,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             handleBoardSolved(tableRows[i], curr_possible[1])
             if (curr_possible[1] != false || words.length < 8)
               words.push([curr_possible[1]])
+        } else if (convert[activeTab.url] == "sequence" &&curr_possible[0] === false) {
+          words.push(curr_possible[1])
+          tableRows[i].innerHTML = ` ------ `;
         } else {
           shuffleArray(curr_possible);
           words.push(curr_possible);
           tableRows[i].innerHTML = `${curr_possible.length} possible word${curr_possible.length > 1 ? 's' : ''}`;
         }
       }
-      updateIcon(settings, numWords, tab.id);
+      updateIcon(settings, numWords, activeTab.id);
       updateColors(settings);
       
     });

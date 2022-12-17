@@ -14,4 +14,6 @@ const DarkModeSetting = "dark";
 const RetroModeSetting = "retro";
 const HighContrastSetting = "colorblind";
 const ColorblindSetting = "1";
-const NumEntries = 65;
+const NumRows = {
+    free: 13,
+    sequence: 15};

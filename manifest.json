@@ -27,8 +27,8 @@
     "content_scripts": [
         {
             "matches": [
-                "https://www.powerlanguage.co.uk/wordle/*",
-                "https://octordle.com/*"
+                "https://octordle.com/free",
+                "https://octordle.com/free-sequence"
             ],
             "js": [
                 "./util/constants.js",
