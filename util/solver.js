@@ -1,3 +1,4 @@
+let numWords = 0;
 // Util for set intersections
 function intersection(setA, setB) {
     let _intersection = new Set();
@@ -116,7 +117,10 @@ function transformGuesses(guesses) {
 
 function checkSolved(guesses) {
     // if the last 5 before '' all contain States.Correct: solved
-    let last_row_index = guesses.indexOf("") - 5
+    let last_row_index = guesses.indexOf("") === -1 ? NumEntries-5 :guesses.indexOf("") - 5
+    if (last_row_index < 0 || last_row_index % 5) {
+        return false
+    }
     let word = ""
     for (let i = last_row_index; i < last_row_index+5; i++) {
         if (guesses[i].split(" ")[1] != States.CORRECT) {
@@ -129,14 +133,18 @@ function checkSolved(guesses) {
 
 // Given the game state, compute the list of possible words
 function solve_specific_board(board_number) {
-    // NYT no longer stores the game state in local stoarage, so we must determine
-    // the game state based on the HTML classes
-
     let guesses = Array.from(document.querySelectorAll('.letter')).slice((board_number-1)*65, board_number*65);
     guesses = transformGuesses(guesses);
     let word = checkSolved(guesses)
+
+    if (document.getElementsByClassName("post-game--title").length && word) {
+        return [true, word, true];
+    }
+    // NYT no longer stores the game state in local stoarage, so we must determine
+    // the game state based on the HTML classes
+
     if (word) {
-        return [true, word];
+        return [true, word, false];
     }
 
     // Change 65 array into 13x5 array
@@ -170,10 +178,16 @@ function solve_specific_board(board_number) {
             }
         }
     }
-    return Array.from(getPossibleWords(state));
+    let possibleWords = Array.from(getPossibleWords(state));
+    numWords += possibleWords.length;
+    if (document.getElementsByClassName("post-game--title").length && word) {
+        return [true, possibleWords, true];
+    }
+    return possibleWords;
 }
 
 function solve() {
+    numWords = 0;
     ret = []
     for (let i = 1; i < 9; i++)
         ret.push(solve_specific_board(i));
@@ -188,6 +202,7 @@ document.addEventListener('keyup', async (e) => {
 
         chrome.runtime.sendMessage({
             possible: solve(), 
+            numWords: numWords,
             settings: getColorSettings()
         });
     }
@@ -198,7 +213,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     try {
         let possible = solve();
         let settings = getColorSettings();
-        sendResponse({ possible, settings });
+        sendResponse({ possible, numWords, settings });
     } catch (e) {
         console.error("encountered JSON parse error", e);
     }
@@ -207,5 +222,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 // Run when wordle page first opens
 chrome.runtime.sendMessage({
     possible: solve(), 
+    numWords: numWords,
     settings: getColorSettings()
 });

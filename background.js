@@ -2,7 +2,7 @@
 chrome.runtime.onMessage.addListener(
   function (request, sender, sendResponse) {
     if (sender.tab) {
-      chrome.action.setBadgeText({ text: `${request.possible.length}`, tabId: sender.tab.id });
+      chrome.action.setBadgeText({ text: `${request.numWords}`, tabId: sender.tab.id });
       const hc = request.settings.HighContrast;
       chrome.action.setBadgeBackgroundColor({
         color: hc ? '#f5793a' : '#538d4e'
