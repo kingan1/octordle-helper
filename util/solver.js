@@ -189,8 +189,12 @@ function solve_specific_board(board_number, type) {
 
 const convert = {
     "https://octordle.com/free": "free",
-    "https://octordle.com/free-sequence": "sequence"
-}
+    "https://octordle.com/free-sequence": "sequence",
+    "https://octordle.com/free-rescue": "free",
+    "https://octordle.com/daily": "free",
+    "https://octordle.com/daily-sequence": "sequence",
+    "https://octordle.com/daily-rescue": "free",
+  }
 
 function solve(url) {
     numWords = 0;
