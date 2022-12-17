@@ -21,6 +21,7 @@ body {
 #description>a:link, #description>a:visited {
   color: #538d4e;
   text-decoration: none;
+  display: block;
 }
 
 #description>a:hover {

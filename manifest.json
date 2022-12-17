@@ -1,6 +1,6 @@
 {
-    "name": "Wordle Helper",
-    "description": "An extension to help you solve Wordles",
+    "name": "octordle Helper",
+    "description": "An extension to help you solve Octordles",
     "version": "2.0.1",
     "manifest_version": 3,
     "background": {
