@@ -4,15 +4,17 @@ const tableRows = document.getElementsByClassName('board')
 const arrows = document.getElementsByClassName('arrow')
 const board = document.getElementsByClassName('board')
 const boardButtons = document.getElementsByClassName('btn-group')
-const convert = {
-  'https://octordle.com/free': 'free',
-  'https://octordle.com/free-sequence': 'sequence',
-  'https://octordle.com/free-rescue': 'free',
-  'https://octordle.com/daily': 'free',
-  'https://octordle.com/daily-sequence': 'sequence',
-  'https://octordle.com/daily-rescue': 'free'
-}
 let currBoard
+
+const chromeUrls = [
+  'https://octordle.com/free*',
+  'https://octordle.com/free-rescue',
+  'https://octordle.com/free-sequence',
+  'https://octordle.com/daily*',
+  'https://octordle.com/daily-rescue*',
+  'https://octordle.com/daily-sequence*'
+
+]
 
 // Update the icon image and badge based on settings
 function updateIcon (settings, numWords, tabId) {
@@ -102,14 +104,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   const [tab] = await chrome.tabs.query({
     active: true,
     currentWindow: true,
-    url: Object.keys(convert)
+    url: chromeUrls
   })
 
   if (tab) {
-    console.log(tab)
     // Send empty message to solver.js to get state and update
     await chrome.tabs.sendMessage(tab.id, { url: tab.url }, ({ possible = {}, numWords = {}, settings = {} }) => {
-      console.log('in')
       // add onclick for the back and forward buttons
       Array.from(arrows).forEach((el) => {
         el.addEventListener('click', function () {
@@ -125,10 +125,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       descriptionHTML.innerHTML = 'Boards:'
       for (let i = 0; i < 8; i++) {
         const currPossible = possible[i]
+        // if currPossible[0] is true, either we guessed right or game is over
         if (currPossible[0] === true) {
-          handleBoardSolved(tableRows[i], currPossible[1])
           if (currPossible[1] !== false || words.length < 8) { words.push([currPossible[1]]) }
-        } else if (convert[tab.url] === 'sequence' && currPossible[0] === false) {
+          handleBoardSolved(tableRows[i], currPossible[1])
+        } else if (getKeyword(tab.url) === 'sequence' && !currPossible[0]) {
           words.push(currPossible[1])
           tableRows[i].innerHTML = ' ------ '
         } else {

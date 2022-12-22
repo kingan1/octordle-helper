@@ -30,12 +30,13 @@
                 "https://octordle.com/free",
                 "https://octordle.com/free-sequence",
                 "https://octordle.com/free-rescue",
-                "https://octordle.com/daily",
-                "https://octordle.com/daily-sequence",
-                "https://octordle.com/daily-rescue"
+                "https://octordle.com/daily/*",
+                "https://octordle.com/daily-sequence/*",
+                "https://octordle.com/daily-rescue/*"
             ],
             "js": [
                 "./util/constants.js",
+                "./util/shared.js",
                 "./util/solver.js"
             ]
         }

@@ -106,23 +106,37 @@ function checkSolved (guesses, NumEntries) {
 }
 
 // Given the game state, compute the list of possible words
+// returns:
+//   array of words
+//      if the game is not over and there is 1+ possible words
+
+// if not an array of words:
+// possible[0]:
+//    (true)
+//    true: if the game is over or we guessed the word right
+// possible[1]:
+//    (string, array)
+//    either array of possible words, or the correct guess
+// possible[2]:
+//    (true, false)
+//    true if the game is over, false if not
+
 function solveSpecificBoard (boardNumber, type) {
   const entries = NumRows[type] * 5
   let guesses = Array.from(document.querySelectorAll('.letter')).slice((boardNumber - 1) * entries, boardNumber * entries)
   guesses = transformGuesses(guesses, entries)
-  const word = checkSolved(guesses, entries)
+  const solved = checkSolved(guesses, entries)
 
-  if (document.getElementsByClassName('post-game--title').length && word) {
-    return [true, word, true]
+  // if the game is over and we guessed the word right
+  if (document.getElementsByClassName('post-game--title').length && solved) {
+    return [true, solved, true]
   }
-  // NYT no longer stores the game state in local stoarage, so we must determine
-  // the game state based on the HTML classes
-
-  if (word) {
-    return [true, word, false]
+  // if we guessed the word right
+  if (solved) {
+    return [true, solved, false]
   }
 
-  // Change 65 array into 13x5 array
+  // Change array into board-wise array
   const boardState = guesses.reduce((rows, key, index) => (index % 5 === 0 ? rows.push([key]) : rows[rows.length - 1].push(key)) && rows, [])
 
   const state = {
@@ -153,28 +167,25 @@ function solveSpecificBoard (boardNumber, type) {
       }
     }
   }
+  // for each absent letter
+  for (const letter of state.absentLetters) {
+    // if its within present letters or correct letters, it is possible that the letter occurs twice
+    // the check on 162 doesn't work because more letters could happen later on
+    if (state.presentLetters.has(letter) || state.correctLetters.includes(letter)) {
+      state.absentLetters.delete(letter)
+    }
+  }
+
   const possibleWords = Array.from(getPossibleWords(state))
   numWords += possibleWords.length
-  if (document.getElementsByClassName('post-game--title').length && word) {
-    return [true, possibleWords, true]
-  }
   return possibleWords
-}
-
-const convert = {
-  'https://octordle.com/free': 'free',
-  'https://octordle.com/free-sequence': 'sequence',
-  'https://octordle.com/free-rescue': 'free',
-  'https://octordle.com/daily': 'free',
-  'https://octordle.com/daily-sequence': 'sequence',
-  'https://octordle.com/daily-rescue': 'free'
 }
 
 function solve (url) {
   numWords = 0
   ret = []
 
-  type = convert[url]
+  type = getKeyword(url)
 
   for (let i = 1; i < 9; i++) { ret.push(solveSpecificBoard(i, type)) }
   if (type === 'free') {
@@ -211,7 +222,6 @@ document.addEventListener('keyup', async (e) => {
 
 // Listen to message from popup.js and respond
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  console.log('here')
   try {
     const possible = solve(request.url)
     const settings = getColorSettings()
